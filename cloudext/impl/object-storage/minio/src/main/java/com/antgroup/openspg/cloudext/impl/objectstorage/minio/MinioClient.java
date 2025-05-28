@@ -227,8 +227,16 @@ public class MinioClient implements ObjectStorageClient {
               .build();
       String baseUrl = minioClient.getPresignedObjectUrl(args);
       URI uri = new URI(baseUrl);
-      String publicUrl =
-          uri.getScheme() + "://" + uri.getHost() + ":" + uri.getPort() + uri.getPath();
+      int port = uri.getPort();
+      if (port == -1) {
+        if ("http".equals(uri.getScheme())) {
+          port = 80;
+        }
+        if ("https".equals(uri.getScheme())) {
+          port = 443;
+        }
+      }
+      String publicUrl = uri.getScheme() + "://" + uri.getHost() + ":" + port + uri.getPath();
       return publicUrl;
     } catch (Exception e) {
       log.error(e.getMessage(), e);
